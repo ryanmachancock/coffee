@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/coffeeDB #file based DB for persisting data
+    #    url: jdbc:h2:mem:coffeeDB #in-memory DB for development/testing
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console.enabled: true
+  # Force sessions to be truly in-memory and not persisted
+  session:
+    store-type: none
+    timeout: 30m
+
+jwt:
+  # Override in production by setting the JWT_SECRET environment variable.
+  # The default below is only for local development and is not secure.
+  secret: ${JWT_SECRET:local-dev-only-change-me-in-production}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.projects.coffee: DEBUG

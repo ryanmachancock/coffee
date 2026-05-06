@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Recipe Organizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
+    <div class="container mx-auto px-4 py-16">
+        <div class="max-w-2xl mx-auto text-center">
+            <!-- Coffee Icon -->
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-amber-600 rounded-full shadow-lg">
+                    <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Main Heading -->
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 mb-6 leading-tight">
+                Welcome to the Coffee Recipe Organizer & Sharer!
+            </h1>
+
+            <p class="text-xl text-amber-700 mb-12 leading-relaxed">
+                Discover, organize, and share your favorite coffee recipes with fellow coffee enthusiasts.
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="space-y-4 md:space-y-0 md:space-x-6 md:flex md:justify-center">
+                <a href="/auth/login"
+                   class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold py-4 px-8 rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
+                    Login
+                </a>
+
+                <div class="flex items-center justify-center">
+                    <span class="text-amber-600 font-medium">or</span>
+                </div>
+
+                <a href="/auth/register"
+                   class="inline-block bg-white hover:bg-gray-50 text-amber-600 font-semibold py-4 px-8 rounded-lg shadow-lg border-2 border-amber-600 transition duration-300 transform hover:scale-105">
+                    Register New Account
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Public Recipes - Coffee Recipe Organizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-6 py-2">
+        <div class="flex justify-between items-center">
+            <h1 class="text-lg font-bold text-amber-600">Coffee Recipe Organizer</h1>
+            <div class="space-x-4 text-sm">
+                <a class="text-amber-600 hover:text-amber-700" href="/dashboard.html">Dashboard</a>
+                <a class="text-red-600 hover:text-red-700" href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mx-auto px-6 py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="text-2xl font-bold text-amber-900 mb-1">Public Recipes</h2>
+        <p class="text-amber-700 text-sm">Discover and explore recipes shared by the community</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-4">
+        <div class="max-w-xl mx-auto">
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                   id="search-input" placeholder="Search recipes by title, bean, or brew method..."
+                   type="text">
+        </div>
+    </div>
+
+    <!-- Recipes Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="recipes-container">
+        <!-- Recipes will be loaded here via JavaScript -->
+        <div class="col-span-full text-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-2"></div>
+            <p class="text-gray-500 text-sm">Loading public recipes...</p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="text-center py-8 hidden" id="empty-state">
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-full mb-3">
+            <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z"/>
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No public recipes found</h3>
+        <p class="text-gray-600 text-sm">Check back later for new recipes from the community!</p>
+    </div>
+</div>
+
+<script>
+    let allRecipes = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadPublicRecipes();
+        setupSearch();
+    });
+
+    async function loadPublicRecipes() {
+        const container = document.getElementById('recipes-container');
+        const emptyState = document.getElementById('empty-state');
+
+        try {
+            const response = await fetch('/api/recipes/public', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const recipes = await response.json();
+            allRecipes = recipes;
+
+            // Clear loading state
+            container.innerHTML = '';
+
+            if (recipes && recipes.length > 0) {
+                displayRecipes(recipes);
+                emptyState.classList.add('hidden');
+            } else {
+                emptyState.classList.remove('hidden');
+            }
+
+        } catch (error) {
+            console.error('Error loading public recipes:', error);
+            container.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-red-600 text-sm">Error loading recipes. Please try again.</p></div>';
+        }
+    }
+
+    function displayRecipes(recipes) {
+        const container = document.getElementById('recipes-container');
+        container.innerHTML = '';
+
+        recipes.forEach(recipe => {
+            const recipeCard = createRecipeCard(recipe);
+            container.appendChild(recipeCard);
+        });
+    }
+
+    function setupSearch() {
+        const searchInput = document.getElementById('search-input');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+
+            if (searchTerm === '') {
+                displayRecipes(allRecipes);
+            } else {
+                const filteredRecipes = allRecipes.filter(recipe => {
+                    return (recipe.title && recipe.title.toLowerCase().includes(searchTerm)) ||
+                           (recipe.bean && recipe.bean.flavor && recipe.bean.flavor.toLowerCase().includes(searchTerm)) ||
+                           (recipe.bean && recipe.bean.origin && recipe.bean.origin.toLowerCase().includes(searchTerm)) ||
+                           (recipe.instruction && recipe.instruction.brewMethod && recipe.instruction.brewMethod.toLowerCase().includes(searchTerm));
+                });
+
+                displayRecipes(filteredRecipes);
+            }
+        });
+    }
+
+    function createRecipeCard(recipe) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 cursor-pointer';
+
+        card.innerHTML = `
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-800 mb-2 text-sm">${recipe.title || 'Untitled Recipe'}</h3>
+                <div class="text-xs text-gray-600 space-y-1 mb-3">
+                    <div>
+                        <span class="font-medium">Bean:</span>
+                        <span>${recipe.bean ? `${recipe.bean.flavor} (${recipe.bean.origin}, ${recipe.bean.roast})` : 'No bean selected'}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium">Method:</span>
+                        <span>${recipe.instruction ? recipe.instruction.brewMethod : 'No method specified'}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium">By:</span>
+                        <span>${recipe.createdBy || 'Unknown'}</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded">Public</span>
+                    <div class="flex space-x-1">
+                        <button onclick="event.stopPropagation(); cloneRecipe(${recipe.id})" class="text-blue-600 hover:text-blue-700 p-1" title="Clone Recipe">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add click handler to the entire card
+        card.addEventListener('click', () => viewRecipe(recipe.id));
+
+        return card;
+    }
+
+    async function viewRecipe(recipeId) {
+        try {
+            const response = await fetch(`/api/recipes/${recipeId}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const recipe = await response.json();
+            showRecipeModal(recipe);
+
+        } catch (error) {
+            console.error('Error loading recipe:', error);
+            alert('Error loading recipe details. Please try again.');
+        }
+    }
+
+    async function cloneRecipe(recipeId) {
+        const newTitle = prompt('Enter a name for your cloned recipe:');
+        if (!newTitle) return;
+
+        try {
+            const response = await fetch(`/api/recipes/${recipeId}/clone?newTitle=${encodeURIComponent(newTitle)}`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            alert('Recipe cloned successfully! You can find it in "My Recipes".');
+
+        } catch (error) {
+            console.error('Error cloning recipe:', error);
+            alert('Error cloning recipe. Please try again.');
+        }
+    }
+
+    function showRecipeModal(recipe) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-4xl mx-4 max-h-96 overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">${recipe.title || 'Untitled Recipe'}</h3>
+                        <p class="text-sm text-gray-600">by ${recipe.createdBy || 'Unknown'}</p>
+                    </div>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-2">Bean Information</h4>
+                        <div class="bg-amber-50 p-3 rounded text-sm">
+                            <p><strong>Flavor:</strong> ${recipe.bean?.flavor || 'N/A'}</p>
+                            <p><strong>Origin:</strong> ${recipe.bean?.origin || 'N/A'}</p>
+                            <p><strong>Roast:</strong> ${recipe.bean?.roast || 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-2">Brewing Instructions</h4>
+                        <div class="bg-blue-50 p-3 rounded text-sm">
+                            <p><strong>Method:</strong> ${recipe.instruction?.brewMethod || 'N/A'}</p>
+                            <p><strong>Water Temp:</strong> ${recipe.instruction?.waterTemp || 'N/A'}°F</p>
+                            <p><strong>Grind:</strong> ${recipe.instruction?.grindSize || 'N/A'}</p>
+                            <p><strong>Coffee:</strong> ${recipe.instruction?.gramsOfCoffee || 'N/A'}g</p>
+                            <p><strong>Water:</strong> ${recipe.instruction?.gramsOfWater || 'N/A'}g</p>
+                        </div>
+                    </div>
+
+                    ${recipe.instruction?.instructionSteps ? `
+                    <div class="lg:col-span-2">
+                        <h4 class="font-semibold text-gray-700 mb-2">Brewing Steps</h4>
+                        <div class="bg-gray-50 p-3 rounded text-sm">
+                            <div class="whitespace-pre-wrap">${recipe.instruction.instructionSteps}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${recipe.notes ? `
+                    <div class="lg:col-span-2">
+                        <h4 class="font-semibold text-gray-700 mb-2">Notes</h4>
+                        <div class="bg-yellow-50 p-3 rounded text-sm">
+                            <p>${recipe.notes}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="lg:col-span-2 flex justify-end pt-4">
+                        <button onclick="cloneRecipe(${recipe.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-sm">
+                            Clone This Recipe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+    }
+</script>
+</body>
+</html>
