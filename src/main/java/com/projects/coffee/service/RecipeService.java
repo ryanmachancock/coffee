@@ -114,7 +114,7 @@ public class RecipeService {
         recipe.setInstruction(instruction);
         recipe.setTitle(recipeCreationDTO.getTitle());
         recipe.setNotes(recipeCreationDTO.getNotes());
-        recipe.setIsPublic(true);
+        recipe.setIsPublic(false);
 
         Recipe savedRecipe = recipeRepository.save(recipe);
         return convertToDisplayDTO(savedRecipe);
