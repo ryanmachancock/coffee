@@ -1,16 +1,14 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/coffeeDB #file based DB for persisting data
-    #    url: jdbc:h2:mem:coffeeDB #in-memory DB for development/testing
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/coffeeDB}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
   h2:
-    console.enabled: true
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:true}
   # Force sessions to be truly in-memory and not persisted
   session:
     store-type: none
