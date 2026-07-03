@@ -5,9 +5,9 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Shared with Me - Coffee Recipe Organizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23d97706' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
 </head>
 <body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
-<!-- Navigation -->
 <nav class="bg-white shadow-sm">
     <div class="container mx-auto px-6 py-2">
         <div class="flex justify-between items-center">
@@ -21,22 +21,18 @@
 </nav>
 
 <div class="container mx-auto px-6 py-4">
-    <!-- Page Header -->
     <div class="mb-4">
         <h2 class="text-2xl font-bold text-amber-900 mb-1">Shared with Me</h2>
         <p class="text-amber-700 text-sm">Recipes that other users have shared with you</p>
     </div>
 
-    <!-- Shared Recipes Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="shared-recipes-container">
-        <!-- Shared recipes will be loaded here via JavaScript -->
         <div class="col-span-full text-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-2"></div>
             <p class="text-gray-500 text-sm">Loading shared recipes...</p>
         </div>
     </div>
 
-    <!-- Empty State -->
     <div class="text-center py-8 hidden" id="empty-state">
         <div class="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-full mb-3">
             <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
@@ -45,48 +41,34 @@
         </div>
         <h3 class="text-lg font-semibold text-gray-800 mb-2">No shared recipes yet</h3>
         <p class="text-gray-600 mb-4 text-sm">When other users share recipes with you, they'll appear here!</p>
-        <a class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm"
-           href="/public-recipes.html">
+        <a class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm" href="/public-recipes.html">
             Browse Public Recipes
         </a>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadSharedRecipes();
-    });
+    const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    document.addEventListener('DOMContentLoaded', loadSharedRecipes);
 
     async function loadSharedRecipes() {
         const container = document.getElementById('shared-recipes-container');
         const emptyState = document.getElementById('empty-state');
 
         try {
-            const response = await fetch('/api/recipes/shares/received', {
-                method: 'GET',
-                credentials: 'include'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const response = await fetch('/api/recipes/shares/received', { credentials: 'include' });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const sharedRecipes = await response.json();
-            console.log('=== Shared recipes received:', sharedRecipes);
-
-            // Clear loading state
             container.innerHTML = '';
 
             if (sharedRecipes && sharedRecipes.length > 0) {
-                sharedRecipes.forEach(share => {
-                    const recipeCard = createSharedRecipeCard(share);
-                    container.appendChild(recipeCard);
-                });
+                sharedRecipes.forEach(share => container.appendChild(createSharedRecipeCard(share)));
                 emptyState.classList.add('hidden');
             } else {
                 emptyState.classList.remove('hidden');
             }
-
         } catch (error) {
             console.error('Error loading shared recipes:', error);
             container.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-red-600 text-sm">Error loading shared recipes. Please try again.</p></div>';
@@ -97,156 +79,112 @@
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 cursor-pointer';
 
-        // Add defensive checks for recipe data
         const recipe = share.recipe;
+        const shareId = Number(share.id);
+
         if (!recipe) {
-            console.error('=== Error: Share object missing recipe data:', share);
-            // Create a minimal card with available data
             card.innerHTML = `
                 <div class="p-4">
-                    <h3 class="font-semibold text-gray-800 mb-2 text-sm">${share.recipeName || 'Untitled Recipe'}</h3>
+                    <h3 class="font-semibold text-gray-800 mb-2 text-sm">${esc(share.recipeName) || 'Untitled Recipe'}</h3>
                     <div class="text-xs text-gray-600 space-y-1 mb-3">
                         <div class="text-red-600">Recipe details not available</div>
-                        <div>
-                            <span class="font-medium">Shared by:</span>
-                            <span>${share.sharedBy}</span>
-                        </div>
-                        <div>
-                            <span class="font-medium">Shared:</span>
-                            <span>${new Date(share.sharedTimestamp).toLocaleDateString()}</span>
-                        </div>
+                        <div><span class="font-medium">Shared by:</span> <span>${esc(share.sharedBy)}</span></div>
+                        <div><span class="font-medium">Shared:</span> <span>${new Date(share.sharedTimestamp).toLocaleDateString()}</span></div>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">Error Loading</span>
-                        <div class="flex space-x-1">
-                            <button onclick="event.stopPropagation(); removeShare(${share.id})" class="text-red-600 hover:text-red-700 p-1" title="Remove Share">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <button onclick="event.stopPropagation(); removeShare(${shareId})" class="text-red-600 hover:text-red-700 p-1" title="Remove Share">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/></svg>
+                        </button>
                     </div>
                 </div>
             `;
             return card;
         }
 
-        const sharedDate = new Date(share.sharedTimestamp).toLocaleDateString();
+        const recipeId = Number(recipe.id);
+        const beanInfo = recipe.bean
+            ? `${esc(recipe.bean.flavor)} (${esc(recipe.bean.origin)}, ${esc(recipe.bean.roast)})`
+            : 'No bean selected';
+        const brewMethod = recipe.instruction ? esc(recipe.instruction.brewMethod) : 'No method specified';
+        const noteHtml = share.note
+            ? `<div class="mt-2 p-2 bg-yellow-50 rounded text-xs"><span class="font-medium">Note:</span> ${esc(share.note)}</div>`
+            : '';
 
         card.innerHTML = `
             <div class="p-4">
-                <h3 class="font-semibold text-gray-800 mb-2 text-sm">${recipe.title || 'Untitled Recipe'}</h3>
+                <h3 class="font-semibold text-gray-800 mb-2 text-sm">${esc(recipe.title) || 'Untitled Recipe'}</h3>
                 <div class="text-xs text-gray-600 space-y-1 mb-3">
-                    <div>
-                        <span class="font-medium">Bean:</span>
-                        <span>${recipe.bean ? `${recipe.bean.flavor} (${recipe.bean.origin}, ${recipe.bean.roast})` : 'No bean selected'}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium">Method:</span>
-                        <span>${recipe.instruction ? recipe.instruction.brewMethod : 'No method specified'}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium">Shared by:</span>
-                        <span>${share.sharedBy}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium">Shared:</span>
-                        <span>${sharedDate}</span>
-                    </div>
-                    ${share.note ? `
-                    <div class="mt-2 p-2 bg-yellow-50 rounded text-xs">
-                        <span class="font-medium">Note:</span> ${share.note}
-                    </div>
-                    ` : ''}
+                    <div><span class="font-medium">Bean:</span> <span>${beanInfo}</span></div>
+                    <div><span class="font-medium">Method:</span> <span>${brewMethod}</span></div>
+                    <div><span class="font-medium">Shared by:</span> <span>${esc(share.sharedBy)}</span></div>
+                    <div><span class="font-medium">Shared:</span> <span>${new Date(share.sharedTimestamp).toLocaleDateString()}</span></div>
+                    ${noteHtml}
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded">Shared</span>
                     <div class="flex space-x-1">
-                        <button onclick="event.stopPropagation(); cloneSharedRecipe(${recipe.id})" class="text-green-600 hover:text-green-700 p-1" title="Clone Recipe">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
-                            </svg>
+                        <button onclick="event.stopPropagation(); cloneSharedRecipe(${recipeId})" class="text-green-600 hover:text-green-700 p-1" title="Clone Recipe">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
                         </button>
-                        <button onclick="event.stopPropagation(); removeShare(${share.id})" class="text-red-600 hover:text-red-700 p-1" title="Remove Share">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                            </svg>
+                        <button onclick="event.stopPropagation(); removeShare(${shareId})" class="text-red-600 hover:text-red-700 p-1" title="Remove Share">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
         `;
 
-        // Add click handler to view recipe details
-        card.addEventListener('click', () => viewSharedRecipe(share));
-
+        card.addEventListener('click', () => showRecipeModal(recipe));
         return card;
     }
 
-    function viewSharedRecipe(share) {
-        showRecipeModal(share.recipe);
-    }
-
     function showRecipeModal(recipe) {
+        const id = Number(recipe.id);
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+
+        const stepsHtml = recipe.instruction?.instructionSteps
+            ? `<div class="lg:col-span-2"><h4 class="font-semibold text-gray-700 mb-2">Brewing Steps</h4><div class="bg-gray-50 p-3 rounded text-sm"><div class="whitespace-pre-wrap">${esc(recipe.instruction.instructionSteps)}</div></div></div>`
+            : '';
+        const notesHtml = recipe.notes
+            ? `<div class="lg:col-span-2"><h4 class="font-semibold text-gray-700 mb-2">Notes</h4><div class="bg-yellow-50 p-3 rounded text-sm"><p>${esc(recipe.notes)}</p></div></div>`
+            : '';
+
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 max-w-4xl mx-4 max-h-96 overflow-y-auto">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">${recipe.title || 'Untitled Recipe'}</h3>
-                        <p class="text-sm text-gray-600">by ${recipe.createdBy || 'Unknown'}</p>
+                        <h3 class="text-xl font-bold text-gray-800">${esc(recipe.title) || 'Untitled Recipe'}</h3>
+                        <p class="text-sm text-gray-600">by ${esc(recipe.createdBy) || 'Unknown'}</p>
                     </div>
                     <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
-                        </svg>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
                     </button>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Bean Information</h4>
                         <div class="bg-amber-50 p-3 rounded text-sm">
-                            <p><strong>Flavor:</strong> ${recipe.bean?.flavor || 'N/A'}</p>
-                            <p><strong>Origin:</strong> ${recipe.bean?.origin || 'N/A'}</p>
-                            <p><strong>Roast:</strong> ${recipe.bean?.roast || 'N/A'}</p>
+                            <p><strong>Flavor:</strong> ${esc(recipe.bean?.flavor) || 'N/A'}</p>
+                            <p><strong>Origin:</strong> ${esc(recipe.bean?.origin) || 'N/A'}</p>
+                            <p><strong>Roast:</strong> ${esc(recipe.bean?.roast) || 'N/A'}</p>
                         </div>
                     </div>
-
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Brewing Instructions</h4>
                         <div class="bg-blue-50 p-3 rounded text-sm">
-                            <p><strong>Method:</strong> ${recipe.instruction?.brewMethod || 'N/A'}</p>
-                            <p><strong>Water Temp:</strong> ${recipe.instruction?.waterTemp || 'N/A'}°F</p>
-                            <p><strong>Grind:</strong> ${recipe.instruction?.grindSize || 'N/A'}</p>
-                            <p><strong>Coffee:</strong> ${recipe.instruction?.gramsOfCoffee || 'N/A'}g</p>
-                            <p><strong>Water:</strong> ${recipe.instruction?.gramsOfWater || 'N/A'}g</p>
+                            <p><strong>Method:</strong> ${esc(recipe.instruction?.brewMethod) || 'N/A'}</p>
+                            <p><strong>Water Temp:</strong> ${esc(recipe.instruction?.waterTemp) || 'N/A'}°F</p>
+                            <p><strong>Grind:</strong> ${esc(recipe.instruction?.grindSize) || 'N/A'}</p>
+                            <p><strong>Coffee:</strong> ${esc(recipe.instruction?.gramsOfCoffee) || 'N/A'}g</p>
+                            <p><strong>Water:</strong> ${esc(recipe.instruction?.gramsOfWater) || 'N/A'}g</p>
                         </div>
                     </div>
-
-                    ${recipe.instruction?.instructionSteps ? `
-                    <div class="lg:col-span-2">
-                        <h4 class="font-semibold text-gray-700 mb-2">Brewing Steps</h4>
-                        <div class="bg-gray-50 p-3 rounded text-sm">
-                            <div class="whitespace-pre-wrap">${recipe.instruction.instructionSteps}</div>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    ${recipe.notes ? `
-                    <div class="lg:col-span-2">
-                        <h4 class="font-semibold text-gray-700 mb-2">Notes</h4>
-                        <div class="bg-yellow-50 p-3 rounded text-sm">
-                            <p>${recipe.notes}</p>
-                        </div>
-                    </div>
-                    ` : ''}
-
+                    ${stepsHtml}
+                    ${notesHtml}
                     <div class="lg:col-span-2 flex justify-end pt-4">
-                        <button onclick="cloneSharedRecipe(${recipe.id})" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-sm mr-2">
-                            Clone This Recipe
-                        </button>
+                        <button onclick="cloneSharedRecipe(${id})" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded text-sm">Clone This Recipe</button>
                     </div>
                 </div>
             </div>
@@ -258,17 +196,13 @@
     async function cloneSharedRecipe(recipeId) {
         const newTitle = prompt('Enter a name for your cloned recipe:');
         if (!newTitle) return;
-
         try {
-            const response = await fetch(`/api/recipes/${recipeId}/clone?newTitle=${encodeURIComponent(newTitle)}`, {
+            const response = await fetch(`/api/recipes/${Number(recipeId)}/clone?newTitle=${encodeURIComponent(newTitle)}`, {
                 method: 'POST',
                 credentials: 'include'
             });
-
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
             alert('Recipe cloned successfully! You can find it in "My Recipes".');
-
         } catch (error) {
             console.error('Error cloning recipe:', error);
             alert('Error cloning recipe. Please try again.');
@@ -276,20 +210,14 @@
     }
 
     async function removeShare(shareId) {
-        if (!confirm('Are you sure you want to remove this shared recipe?')) {
-            return;
-        }
-
+        if (!confirm('Are you sure you want to remove this shared recipe?')) return;
         try {
-            const response = await fetch(`/api/recipes/shares/${shareId}`, {
+            const response = await fetch(`/api/recipes/shares/${Number(shareId)}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-            loadSharedRecipes(); // Reload to remove the share
-
+            loadSharedRecipes();
         } catch (error) {
             console.error('Error removing share:', error);
             alert('Error removing shared recipe. Please try again.');

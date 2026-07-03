@@ -70,7 +70,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/register.html", "/register_success.html",
                                 "/home.html", "/login", "/login.html", "/login_success.html",
-                                "/static/**", "/", "/h2-console/**", "/css/**", "/js/**", "/images/**").permitAll()
+                                "/static/**", "/", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/dashboard.html", "/dashboard", "/create-recipe.html",
                                 "/my-recipes.html", "/public-recipes.html", "/shared-with-me.html",
                                 "/my-recipes/**", "/public-recipes/**").authenticated()
@@ -107,7 +107,13 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 )
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                        )
+                );
 
         return http.build();
     }

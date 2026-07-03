@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Coffee Recipe Organizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23d97706' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
 </head>
 <body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -30,6 +31,7 @@
                         <input type="text"
                                id="firstName"
                                name="firstName"
+                               autocomplete="given-name"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
                                placeholder="Enter your first name" />
@@ -42,6 +44,7 @@
                         <input type="text"
                                id="lastName"
                                name="lastName"
+                               autocomplete="family-name"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
                                placeholder="Enter your last name" />
@@ -54,6 +57,7 @@
                         <input type="text"
                                id="username"
                                name="username"
+                               autocomplete="username"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
                                placeholder="Choose a username" />
@@ -66,6 +70,7 @@
                         <input type="password"
                                id="password"
                                name="password"
+                               autocomplete="new-password"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
                                placeholder="Create a secure password" />

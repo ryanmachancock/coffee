@@ -5,6 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>My Recipes - Coffee Recipe Organizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23d97706' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
 </head>
 <body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
 <!-- Navigation -->
@@ -35,7 +36,6 @@
 
     <!-- Recipes Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="recipes-container">
-        <!-- Recipes will be loaded here via JavaScript -->
         <div class="col-span-full text-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-2"></div>
             <p class="text-gray-500 text-sm">Loading your recipes...</p>
@@ -59,13 +59,13 @@
 </div>
 
 <script>
-    // Simple recipe loading without external JS file
+    const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    let allMyRecipes = [];
+
     document.addEventListener('DOMContentLoaded', function() {
         loadMyRecipes();
     });
-
-    // Store recipes globally so we can update them after toggle
-    let allMyRecipes = [];
 
     async function loadMyRecipes() {
         const container = document.getElementById('recipes-container');
@@ -77,23 +77,14 @@
                 credentials: 'include'
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const recipes = await response.json();
-            console.log('=== Frontend received recipes:', recipes); // Debug log
-            allMyRecipes = recipes; // Store recipes globally
-
-            // Clear loading state
+            allMyRecipes = recipes;
             container.innerHTML = '';
 
             if (recipes && recipes.length > 0) {
-                recipes.forEach(recipe => {
-                    console.log(`=== Creating card for recipe: ${recipe.title}, isPublic: ${recipe.isPublic}`); // Debug log
-                    const recipeCard = createRecipeCard(recipe);
-                    container.appendChild(recipeCard);
-                });
+                recipes.forEach(recipe => container.appendChild(createRecipeCard(recipe)));
                 emptyState.classList.add('hidden');
             } else {
                 emptyState.classList.remove('hidden');
@@ -105,58 +96,87 @@
         }
     }
 
+    function createRecipeCard(recipe) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 cursor-pointer';
+
+        const id = Number(recipe.id);
+        const beanInfo = recipe.bean
+            ? `${esc(recipe.bean.flavor)} (${esc(recipe.bean.origin)}, ${esc(recipe.bean.roast)})`
+            : 'No bean selected';
+        const brewMethod = recipe.instruction ? esc(recipe.instruction.brewMethod) : 'No method specified';
+        const visibilityClass = recipe.isPublic ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600';
+        const visibilityLabel = recipe.isPublic ? 'Public' : 'Private';
+
+        card.innerHTML = `
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-800 mb-2 text-sm">${esc(recipe.title) || 'Untitled Recipe'}</h3>
+                <div class="text-xs text-gray-600 space-y-1 mb-3">
+                    <div><span class="font-medium">Bean:</span> <span>${beanInfo}</span></div>
+                    <div><span class="font-medium">Method:</span> <span>${brewMethod}</span></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-1 ${visibilityClass} rounded recipe-visibility-${id}">${visibilityLabel}</span>
+                    <div class="flex space-x-1">
+                        <button onclick="event.stopPropagation(); shareRecipe(${id})" class="text-purple-600 hover:text-purple-700 p-1" title="Share Recipe">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A1.92,1.92 0 0,0 19,17.08C18.36,17.08 17.77,17.5 17.77,18.08C17.77,18.67 18.36,19.08 19,19.08Z"/></svg>
+                        </button>
+                        <button onclick="event.stopPropagation(); toggleVisibility(${id})" class="text-blue-600 hover:text-blue-700 p-1" title="Toggle Visibility">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/></svg>
+                        </button>
+                        <button onclick="event.stopPropagation(); deleteRecipe(${id})" class="text-red-600 hover:text-red-700 p-1" title="Delete Recipe">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        card.addEventListener('click', () => viewRecipe(id));
+        return card;
+    }
+
     function showRecipeModal(recipe) {
+        const id = Number(recipe.id);
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+
+        const stepsHtml = recipe.instruction?.instructionSteps
+            ? `<div class="lg:col-span-2"><h4 class="font-semibold text-gray-700 mb-2">Brewing Steps</h4><div class="bg-gray-50 p-3 rounded text-sm"><div class="whitespace-pre-wrap">${esc(recipe.instruction.instructionSteps)}</div></div></div>`
+            : '';
+        const notesHtml = recipe.notes
+            ? `<div class="lg:col-span-2"><h4 class="font-semibold text-gray-700 mb-2">Notes</h4><div class="bg-yellow-50 p-3 rounded text-sm"><p>${esc(recipe.notes)}</p></div></div>`
+            : '';
+
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 max-w-4xl mx-4 max-h-96 overflow-y-auto">
                 <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold text-gray-800">${recipe.title || 'Untitled Recipe'}</h3>
+                    <h3 class="text-xl font-bold text-gray-800">${esc(recipe.title) || 'Untitled Recipe'}</h3>
                     <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
-                        </svg>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
                     </button>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Bean Information</h4>
                         <div class="bg-amber-50 p-3 rounded text-sm">
-                            <p><strong>Flavor:</strong> ${recipe.bean?.flavor || 'N/A'}</p>
-                            <p><strong>Origin:</strong> ${recipe.bean?.origin || 'N/A'}</p>
-                            <p><strong>Roast:</strong> ${recipe.bean?.roast || 'N/A'}</p>
+                            <p><strong>Flavor:</strong> ${esc(recipe.bean?.flavor) || 'N/A'}</p>
+                            <p><strong>Origin:</strong> ${esc(recipe.bean?.origin) || 'N/A'}</p>
+                            <p><strong>Roast:</strong> ${esc(recipe.bean?.roast) || 'N/A'}</p>
                         </div>
                     </div>
-
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Brewing Instructions</h4>
                         <div class="bg-blue-50 p-3 rounded text-sm">
-                            <p><strong>Method:</strong> ${recipe.instruction?.brewMethod || 'N/A'}</p>
-                            <p><strong>Water Temp:</strong> ${recipe.instruction?.waterTemp || 'N/A'}°F</p>
-                            <p><strong>Grind:</strong> ${recipe.instruction?.grindSize || 'N/A'}</p>
-                            <p><strong>Coffee:</strong> ${recipe.instruction?.gramsOfCoffee || 'N/A'}g</p>
-                            <p><strong>Water:</strong> ${recipe.instruction?.gramsOfWater || 'N/A'}g</p>
+                            <p><strong>Method:</strong> ${esc(recipe.instruction?.brewMethod) || 'N/A'}</p>
+                            <p><strong>Water Temp:</strong> ${esc(recipe.instruction?.waterTemp) || 'N/A'}°F</p>
+                            <p><strong>Grind:</strong> ${esc(recipe.instruction?.grindSize) || 'N/A'}</p>
+                            <p><strong>Coffee:</strong> ${esc(recipe.instruction?.gramsOfCoffee) || 'N/A'}g</p>
+                            <p><strong>Water:</strong> ${esc(recipe.instruction?.gramsOfWater) || 'N/A'}g</p>
                         </div>
                     </div>
-
-                    ${recipe.instruction?.instructionSteps ? `
-                    <div class="lg:col-span-2">
-                        <h4 class="font-semibold text-gray-700 mb-2">Brewing Steps</h4>
-                        <div class="bg-gray-50 p-3 rounded text-sm">
-                            <div class="whitespace-pre-wrap">${recipe.instruction.instructionSteps}</div>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    ${recipe.notes ? `
-                    <div class="lg:col-span-2">
-                        <h4 class="font-semibold text-gray-700 mb-2">Notes</h4>
-                        <div class="bg-yellow-50 p-3 rounded text-sm">
-                            <p>${recipe.notes}</p>
-                        </div>
-                    </div>
-                    ` : ''}
+                    ${stepsHtml}
+                    ${notesHtml}
                 </div>
             </div>
         `;
@@ -164,66 +184,11 @@
         document.body.appendChild(modal);
     }
 
-    function createRecipeCard(recipe) {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 cursor-pointer';
-
-        card.innerHTML = `
-            <div class="p-4">
-                <h3 class="font-semibold text-gray-800 mb-2 text-sm">${recipe.title || 'Untitled Recipe'}</h3>
-                <div class="text-xs text-gray-600 space-y-1 mb-3">
-                    <div>
-                        <span class="font-medium">Bean:</span>
-                        <span>${recipe.bean ? `${recipe.bean.flavor} (${recipe.bean.origin}, ${recipe.bean.roast})` : 'No bean selected'}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium">Method:</span>
-                        <span>${recipe.instruction ? recipe.instruction.brewMethod : 'No method specified'}</span>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs px-2 py-1 ${recipe.isPublic ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'} rounded recipe-visibility-${recipe.id}">
-                        ${recipe.isPublic ? 'Public' : 'Private'}
-                    </span>
-                    <div class="flex space-x-1">
-                        <button onclick="event.stopPropagation(); shareRecipe(${recipe.id})" class="text-purple-600 hover:text-purple-700 p-1" title="Share Recipe">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A1.92,1.92 0 0,0 19,17.08C18.36,17.08 17.77,17.5 17.77,18.08C17.77,18.67 18.36,19.08 19,19.08Z"/>
-                            </svg>
-                        </button>
-                        <button onclick="event.stopPropagation(); toggleVisibility(${recipe.id})" class="text-blue-600 hover:text-blue-700 p-1" title="Toggle Visibility">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
-                            </svg>
-                        </button>
-                        <button onclick="event.stopPropagation(); deleteRecipe(${recipe.id})" class="text-red-600 hover:text-red-700 p-1" title="Delete Recipe">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Add click handler to the entire card
-        card.addEventListener('click', () => viewRecipe(recipe.id));
-
-        return card;
-    }
-
     async function viewRecipe(recipeId) {
         try {
-            const response = await fetch(`/api/recipes/${recipeId}`, {
-                method: 'GET',
-                credentials: 'include'
-            });
-
+            const response = await fetch(`/api/recipes/${Number(recipeId)}`, { credentials: 'include' });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-            const recipe = await response.json();
-            showRecipeModal(recipe);
-
+            showRecipeModal(await response.json());
         } catch (error) {
             console.error('Error loading recipe:', error);
             alert('Error loading recipe details. Please try again.');
@@ -232,37 +197,28 @@
 
     async function toggleVisibility(recipeId) {
         try {
-            const response = await fetch(`/api/recipes/${recipeId}/visibility`, {
+            const response = await fetch(`/api/recipes/${Number(recipeId)}/visibility`, {
                 method: 'PATCH',
                 credentials: 'include'
             });
-
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const updatedRecipe = await response.json();
-            console.log(`=== Toggle response for recipe ${recipeId}: isPublic = ${updatedRecipe.isPublic} ===`); // Debug log
+            const idx = allMyRecipes.findIndex(r => r.id === recipeId);
+            if (idx !== -1) allMyRecipes[idx].isPublic = updatedRecipe.isPublic;
 
-            // Update the local recipe data structure
-            const recipeIndex = allMyRecipes.findIndex(recipe => recipe.id === recipeId);
-            if (recipeIndex !== -1) {
-                allMyRecipes[recipeIndex].isPublic = updatedRecipe.isPublic;
-            }
-
-            // Update the visibility label without reloading the entire page
-            const visibilityElement = document.querySelector(`.recipe-visibility-${recipeId}`);
-            if (visibilityElement && updatedRecipe) {
+            const el = document.querySelector(`.recipe-visibility-${recipeId}`);
+            if (el && updatedRecipe) {
                 if (updatedRecipe.isPublic) {
-                    visibilityElement.textContent = 'Public';
-                    visibilityElement.className = `text-xs px-2 py-1 bg-green-100 text-green-600 rounded recipe-visibility-${recipeId}`;
+                    el.textContent = 'Public';
+                    el.className = `text-xs px-2 py-1 bg-green-100 text-green-600 rounded recipe-visibility-${recipeId}`;
                 } else {
-                    visibilityElement.textContent = 'Private';
-                    visibilityElement.className = `text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded recipe-visibility-${recipeId}`;
+                    el.textContent = 'Private';
+                    el.className = `text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded recipe-visibility-${recipeId}`;
                 }
             } else {
-                // Fallback: reload the entire page if we can't update locally
                 loadMyRecipes();
             }
-
         } catch (error) {
             console.error('Error toggling visibility:', error);
             alert('Error updating recipe visibility. Please try again.');
@@ -270,20 +226,14 @@
     }
 
     async function deleteRecipe(recipeId) {
-        if (!confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
-            return;
-        }
-
+        if (!confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) return;
         try {
-            const response = await fetch(`/api/recipes/${recipeId}`, {
+            const response = await fetch(`/api/recipes/${Number(recipeId)}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-            loadMyRecipes(); // Reload to remove deleted recipe
-
+            loadMyRecipes();
         } catch (error) {
             console.error('Error deleting recipe:', error);
             alert('Error deleting recipe. Please try again.');
@@ -293,33 +243,18 @@
     async function shareRecipe(recipeId) {
         const username = prompt('Enter the username to share this recipe with:');
         if (!username) return;
-
         const note = prompt('Add an optional note for this share (or leave blank):');
-
         try {
             const response = await fetch('/api/recipes/shares', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({
-                    recipeId: recipeId,
-                    sharedWithUsername: username,
-                    note: note || ''
-                })
+                body: JSON.stringify({ recipeId: recipeId, sharedWithUsername: username, note: note || '' })
             });
-
             if (!response.ok) {
-                if (response.status === 400) {
-                    throw new Error('Invalid request: User not found or recipe already shared');
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                throw new Error(response.status === 400 ? 'User not found or recipe already shared' : `HTTP error! status: ${response.status}`);
             }
-
             alert(`Recipe shared successfully with ${username}!`);
-
         } catch (error) {
             console.error('Error sharing recipe:', error);
             alert('Error sharing recipe: ' + error.message);

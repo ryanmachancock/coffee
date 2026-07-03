@@ -1,4 +1,5 @@
-// Recipe Creation JavaScript
+const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 class RecipeCreator {
     constructor() {
         this.currentStep = 1;
@@ -89,12 +90,12 @@ class RecipeCreator {
 
         container.innerHTML = beans.map(bean => `
             <div class="bean-item p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition duration-200"
-                 data-bean-id="${bean.id}">
+                 data-bean-id="${Number(bean.id)}">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h5 class="font-semibold text-gray-800">${bean.flavor}</h5>
-                        <p class="text-sm text-gray-600">${bean.origin} • ${bean.roast}</p>
-                        ${bean.createdBy ? `<p class="text-xs text-gray-500 mt-1">Created by: ${bean.createdBy}</p>` : ''}
+                        <h5 class="font-semibold text-gray-800">${esc(bean.flavor)}</h5>
+                        <p class="text-sm text-gray-600">${esc(bean.origin)} • ${esc(bean.roast)}</p>
+                        ${bean.createdBy ? `<p class="text-xs text-gray-500 mt-1">Created by: ${esc(bean.createdBy)}</p>` : ''}
                     </div>
                     <div class="text-xs text-gray-400">
                         ${bean.isPublic ? 'Public' : 'Private'}
@@ -126,13 +127,13 @@ class RecipeCreator {
 
         container.innerHTML = instructions.map(instruction => `
             <div class="instruction-item p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition duration-200"
-                 data-instruction-id="${instruction.id}">
+                 data-instruction-id="${Number(instruction.id)}">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h5 class="font-semibold text-gray-800">${instruction.brewMethod}</h5>
-                        <p class="text-sm text-gray-600">${instruction.gramsOfCoffee}g coffee • ${instruction.gramsOfWater}g water • ${instruction.waterTemp}°F</p>
-                        <p class="text-sm text-gray-600">Grind: ${instruction.grindSize}</p>
-                        <p class="text-xs text-gray-500 mt-1 truncate">${instruction.instructionSteps.substring(0, 100)}${instruction.instructionSteps.length > 100 ? '...' : ''}</p>
+                        <h5 class="font-semibold text-gray-800">${esc(instruction.brewMethod)}</h5>
+                        <p class="text-sm text-gray-600">${Number(instruction.gramsOfCoffee)}g coffee • ${Number(instruction.gramsOfWater)}g water • ${Number(instruction.waterTemp)}°F</p>
+                        <p class="text-sm text-gray-600">Grind: ${esc(instruction.grindSize)}</p>
+                        <p class="text-xs text-gray-500 mt-1 truncate">${esc(instruction.instructionSteps.substring(0, 100))}${instruction.instructionSteps.length > 100 ? '...' : ''}</p>
                     </div>
                 </div>
             </div>
@@ -274,9 +275,9 @@ class RecipeCreator {
         const preview = document.getElementById('selected-bean-preview');
         const content = document.getElementById('bean-preview-content');
         content.innerHTML = `
-            <p><strong>Flavor:</strong> ${bean.flavor}</p>
-            <p><strong>Origin:</strong> ${bean.origin}</p>
-            <p><strong>Roast:</strong> ${bean.roast}</p>
+            <p><strong>Flavor:</strong> ${esc(bean.flavor)}</p>
+            <p><strong>Origin:</strong> ${esc(bean.origin)}</p>
+            <p><strong>Roast:</strong> ${esc(bean.roast)}</p>
         `;
         preview.classList.remove('hidden');
 
@@ -305,10 +306,10 @@ class RecipeCreator {
         const preview = document.getElementById('selected-instruction-preview');
         const content = document.getElementById('instruction-preview-content');
         content.innerHTML = `
-            <p><strong>Brew Method:</strong> ${instruction.brewMethod}</p>
-            <p><strong>Coffee:</strong> ${instruction.gramsOfCoffee}g | <strong>Water:</strong> ${instruction.gramsOfWater}g</p>
-            <p><strong>Water Temp:</strong> ${instruction.waterTemp}°F | <strong>Grind:</strong> ${instruction.grindSize}</p>
-            <p><strong>Steps:</strong> ${instruction.instructionSteps.substring(0, 150)}${instruction.instructionSteps.length > 150 ? '...' : ''}</p>
+            <p><strong>Brew Method:</strong> ${esc(instruction.brewMethod)}</p>
+            <p><strong>Coffee:</strong> ${Number(instruction.gramsOfCoffee)}g | <strong>Water:</strong> ${Number(instruction.gramsOfWater)}g</p>
+            <p><strong>Water Temp:</strong> ${Number(instruction.waterTemp)}°F | <strong>Grind:</strong> ${esc(instruction.grindSize)}</p>
+            <p><strong>Steps:</strong> ${esc(instruction.instructionSteps.substring(0, 150))}${instruction.instructionSteps.length > 150 ? '...' : ''}</p>
         `;
         preview.classList.remove('hidden');
 
@@ -367,18 +368,18 @@ class RecipeCreator {
     updateFinalSummaries() {
         if (this.selectedBean) {
             document.getElementById('final-bean-summary').innerHTML = `
-                <p><strong>Flavor:</strong> ${this.selectedBean.flavor}</p>
-                <p><strong>Origin:</strong> ${this.selectedBean.origin}</p>
-                <p><strong>Roast:</strong> ${this.selectedBean.roast}</p>
+                <p><strong>Flavor:</strong> ${esc(this.selectedBean.flavor)}</p>
+                <p><strong>Origin:</strong> ${esc(this.selectedBean.origin)}</p>
+                <p><strong>Roast:</strong> ${esc(this.selectedBean.roast)}</p>
             `;
         }
 
         if (this.selectedInstruction) {
             document.getElementById('final-instruction-summary').innerHTML = `
-                <p><strong>Brew Method:</strong> ${this.selectedInstruction.brewMethod}</p>
-                <p><strong>Ratio:</strong> ${this.selectedInstruction.gramsOfCoffee}g coffee to ${this.selectedInstruction.gramsOfWater}g water</p>
-                <p><strong>Water Temp:</strong> ${this.selectedInstruction.waterTemp}°F</p>
-                <p><strong>Grind Size:</strong> ${this.selectedInstruction.grindSize}</p>
+                <p><strong>Brew Method:</strong> ${esc(this.selectedInstruction.brewMethod)}</p>
+                <p><strong>Ratio:</strong> ${Number(this.selectedInstruction.gramsOfCoffee)}g coffee to ${Number(this.selectedInstruction.gramsOfWater)}g water</p>
+                <p><strong>Water Temp:</strong> ${Number(this.selectedInstruction.waterTemp)}°F</p>
+                <p><strong>Grind Size:</strong> ${esc(this.selectedInstruction.grindSize)}</p>
             `;
         }
     }
