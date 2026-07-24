@@ -13,6 +13,12 @@ public class CoffeeApplication {
 
     private static void applyDatasourceFromEnv() {
         String url = System.getenv("SPRING_DATASOURCE_URL");
+        String userDebug = System.getenv("SPRING_DATASOURCE_USERNAME");
+        String passDebug = System.getenv("SPRING_DATASOURCE_PASSWORD");
+        System.out.println("[datasource-debug] url=" + (url == null ? null : url.replaceAll("://[^@/]+@", "://<redacted>@"))
+                + " username=" + userDebug
+                + " passwordPresent=" + (passDebug != null && !passDebug.isBlank())
+                + " passwordLength=" + (passDebug == null ? -1 : passDebug.length()));
         if (url == null || url.isBlank()) return;
 
         if (!url.startsWith("jdbc:")) {

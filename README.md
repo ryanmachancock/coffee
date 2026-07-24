@@ -2,7 +2,7 @@
 
 A web app for creating, organizing, and sharing coffee brewing recipes. Built with Spring Boot and deployed on Render.
 
-**Live demo:** _update after deploying — Render assigns `https://<service-name>.onrender.com`_
+**Live demo:** https://coffee-recipe-app-0eng.onrender.com
 
 ---
 
