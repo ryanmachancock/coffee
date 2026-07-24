@@ -1,8 +1,8 @@
 # Coffee Recipe Organizer
 
-A web app for creating, organizing, and sharing coffee brewing recipes. Built with Spring Boot and deployed on Railway.
+A web app for creating, organizing, and sharing coffee brewing recipes. Built with Spring Boot and deployed on Render.
 
-**Live demo:** https://coffee-production-a4ad.up.railway.app
+**Live demo:** _update after deploying — Render assigns `https://<service-name>.onrender.com`_
 
 ---
 
@@ -24,11 +24,11 @@ A web app for creating, organizing, and sharing coffee brewing recipes. Built wi
 | Language | Java 21 |
 | Framework | Spring Boot 3.5 |
 | Security | Spring Security — dual filter chains (session + JWT) |
-| Database | PostgreSQL (production) · H2 file DB (local dev) |
+| Database | PostgreSQL via [Neon](https://neon.tech) (production) · H2 file DB (local dev) |
 | ORM | JPA / Hibernate |
 | Frontend | Vanilla HTML/JS · Tailwind CSS |
 | Build | Maven |
-| Hosting | Railway |
+| Hosting | Render |
 
 The REST API (`/api/**`) uses stateless JWT Bearer tokens. The web UI uses session-based form login. Both are handled by separate `@Order`-prioritized `SecurityFilterChain` beans in a single Spring Boot application.
 
@@ -54,19 +54,19 @@ JWT_SECRET=your-secret-here
 
 ---
 
-## Production deployment (Railway)
+## Production deployment (Render + Neon)
 
-1. Connect the GitHub repo to a Railway project
-2. Add a PostgreSQL plugin
-3. Set these environment variables on the app service:
+1. Create a free Postgres project at [neon.tech](https://neon.tech) and copy the connection details (host, database, user, password) from its dashboard
+2. On [render.com](https://render.com), create a new **Web Service** from the GitHub repo — Render will detect the `Dockerfile` and build from it
+3. Set these environment variables on the service:
 
 ```
 SPRING_PROFILES_ACTIVE=prod
-SPRING_DATASOURCE_URL=jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}
-SPRING_DATASOURCE_USERNAME=${{Postgres.PGUSER}}
-SPRING_DATASOURCE_PASSWORD=${{Postgres.PGPASSWORD}}
+SPRING_DATASOURCE_URL=jdbc:postgresql://<neon-host>/<neon-database>?sslmode=require
+SPRING_DATASOURCE_USERNAME=<neon-user>
+SPRING_DATASOURCE_PASSWORD=<neon-password>
 JWT_SECRET=<random 32+ char string>
 JAVA_TOOL_OPTIONS=-Xmx256m -Xms64m
 ```
 
-Railway redeploys automatically on every push to `main`.
+Render redeploys automatically on every push to `main`. The free plan spins the service down after ~15 min idle; the next request wakes it, which can take 30s+ (Spring Boot cold start).
