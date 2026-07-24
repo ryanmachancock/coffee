@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(npx tsc*)",
+      "Bash(curl -s*)",
+      "Bash(npx eslint*)",
+      "mcp__chrome-devtools__resize_page",
+      "Bash(npm run lint)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__lighthouse_audit"
+    ]
+  }
+}
