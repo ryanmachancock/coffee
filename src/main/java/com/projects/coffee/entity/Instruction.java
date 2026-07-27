@@ -1,5 +1,6 @@
 package com.projects.coffee.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ public class Instruction {
     @GeneratedValue
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String instructionSteps;
     private Integer waterTemp;
     private Integer gramsOfWater;

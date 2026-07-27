@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Public Recipes - Coffee Recipe Organizer</title>
+    <title>Browse Public Recipes - Coffee Recipe Organizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/theme-config.js"></script>
     <link rel="stylesheet" href="/css/theme.css">
@@ -15,8 +15,8 @@
         <div class="flex flex-wrap gap-y-1 justify-between items-center">
             <h1 class="text-base sm:text-lg font-bold text-amber-600 whitespace-nowrap">Coffee Recipe Organizer</h1>
             <div class="flex gap-4 text-sm whitespace-nowrap">
-                <a class="text-amber-600 hover:text-amber-700" href="/dashboard.html">Dashboard</a>
-                <a class="text-red-600 hover:text-red-700" href="/logout">Logout</a>
+                <a class="text-amber-600 hover:text-amber-700" href="/login.html">Sign In</a>
+                <a class="text-amber-600 hover:text-amber-700" href="/auth/register">Create Account</a>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
 <div class="container mx-auto px-6 py-4">
     <div class="mb-4">
         <h2 class="text-2xl font-bold text-amber-900 mb-1">Public Recipes</h2>
-        <p class="text-amber-700 text-sm">Discover and explore recipes shared by the community</p>
+        <p class="text-amber-700 text-sm">Browse recipes shared by the community. No account required unless you want to save one.</p>
     </div>
 
     <div class="mb-4">
@@ -68,7 +68,7 @@
         const emptyState = document.getElementById('empty-state');
 
         try {
-            const response = await fetch('/api/recipes/public', { credentials: 'include' });
+            const response = await fetch('/api/recipes/public');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const recipes = await response.json();
@@ -129,9 +129,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded">Public</span>
-                    <button onclick="event.stopPropagation(); cloneRecipe(${id})" class="text-amber-600 hover:text-amber-700 p-1" title="Clone Recipe">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
-                    </button>
+                    <a href="/login.html" onclick="event.stopPropagation()" class="text-xs text-amber-600 hover:text-amber-700 font-medium" title="Sign in to save this recipe">Sign in to save</a>
                 </div>
             </div>
         `;
@@ -142,7 +140,7 @@
 
     async function viewRecipe(recipeId) {
         try {
-            const response = await fetch(`/api/recipes/${Number(recipeId)}`, { credentials: 'include' });
+            const response = await fetch(`/api/recipes/${Number(recipeId)}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             showRecipeModal(await response.json());
         } catch (error) {
@@ -151,24 +149,7 @@
         }
     }
 
-    async function cloneRecipe(recipeId) {
-        const newTitle = prompt('Enter a name for your cloned recipe:');
-        if (!newTitle) return;
-        try {
-            const response = await fetch(`/api/recipes/${Number(recipeId)}/clone?newTitle=${encodeURIComponent(newTitle)}`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            alert('Recipe cloned successfully! You can find it in "My Recipes".');
-        } catch (error) {
-            console.error('Error cloning recipe:', error);
-            alert('Error cloning recipe. Please try again.');
-        }
-    }
-
     function showRecipeModal(recipe) {
-        const id = Number(recipe.id);
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
 
@@ -212,7 +193,7 @@
                     ${stepsHtml}
                     ${notesHtml}
                     <div class="lg:col-span-2 flex justify-end pt-4">
-                        <button onclick="cloneRecipe(${id})" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded text-sm">Clone This Recipe</button>
+                        <a href="/login.html" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded text-sm inline-block">Sign In to Save This Recipe</a>
                     </div>
                 </div>
             </div>

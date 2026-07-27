@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -43,6 +44,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/public", "/api/recipes/{id:[0-9]+}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)
@@ -69,7 +71,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/register.html", "/register_success.html",
-                                "/home.html", "/login", "/login.html", "/login_success.html",
+                                "/home.html", "/login", "/login.html", "/login_success.html", "/browse.html",
                                 "/static/**", "/", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/dashboard.html", "/dashboard", "/create-recipe.html",
                                 "/my-recipes.html", "/public-recipes.html", "/shared-with-me.html",

@@ -5,71 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Recipe Organizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23d97706' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
+    <script src="/js/theme-config.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232A1B12' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
 </head>
-<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
-    <div class="container mx-auto px-4 py-16">
-        <div class="max-w-3xl mx-auto text-center">
-            <!-- Coffee Icon -->
-            <div class="mb-8">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-amber-600 rounded-full shadow-lg">
-                    <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z"/>
-                    </svg>
-                </div>
-            </div>
+<body class="bg-amber-50 min-h-screen">
 
-            <!-- Main Heading -->
-            <h1 class="text-4xl md:text-5xl font-bold text-amber-900 mb-4 leading-tight">
-                Coffee Recipe Organizer
+    <section class="py-20 px-4 border-b border-amber-200">
+        <div class="max-w-2xl mx-auto text-center">
+            <svg width="64" height="64" viewBox="0 0 72 72" fill="none" class="mx-auto mb-5 text-amber-600">
+                <path d="M28 14c-3 3-3 6 0 9s3 6 0 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                <path d="M36 12c-3 3-3 6 0 9s3 6 0 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                <path d="M44 14c-3 3-3 6 0 9s3 6 0 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                <path d="M14 38 H58" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                <path d="M18 38 H54 L36 58 Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                <path d="M20 58 H52 L48 66 H24 Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+            </svg>
+            <p class="text-xs font-semibold text-amber-600 tracking-widest uppercase mb-4">Coffee Recipe Organizer</p>
+
+            <h1 class="text-4xl md:text-5xl text-amber-900 mb-4 leading-tight">
+                Recipes worth brewing again.
             </h1>
-            <p class="text-lg text-amber-700 mb-10 leading-relaxed">
-                Build your personal coffee library. Store beans, brewing methods, and recipes — then share them with the community.
+            <p class="text-lg text-amber-800 mb-10 leading-relaxed">
+                Keep track of the beans, ratios, and steps that actually worked, then share what's good with everyone else.
             </p>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                 <a href="/login.html"
-                   class="w-full sm:w-auto inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-200">
+                   class="w-full sm:w-auto inline-block bg-amber-800 hover:bg-amber-900 text-white font-semibold py-3 px-8 rounded transition duration-200">
                     Sign In
                 </a>
                 <a href="/auth/register"
-                   class="w-full sm:w-auto inline-block bg-white hover:bg-gray-50 text-amber-700 font-semibold py-3 px-8 rounded-lg shadow-md border border-amber-200 transition duration-200">
+                   class="w-full sm:w-auto inline-block bg-transparent hover:bg-amber-100 text-amber-900 font-semibold py-3 px-8 rounded border border-amber-300 transition duration-200">
                     Create Account
                 </a>
             </div>
 
-            <!-- Feature Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
-                <div class="bg-white bg-opacity-70 rounded-xl p-6 shadow-sm">
-                    <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-100 rounded-lg mb-4">
-                        <svg class="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4M8,12V14H16V12H8M8,16V18H13V16H8Z"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Organize</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Track beans by origin, roast, and flavor. Store precise brewing parameters — grind, temp, ratios, and step-by-step instructions.</p>
+            <p class="text-sm text-amber-700">
+                Just looking? <a href="/browse.html" class="font-semibold underline hover:text-amber-900">Browse public recipes</a> without an account.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-16 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <p class="text-xs font-semibold text-amber-600 tracking-widest uppercase text-center mb-10">What you get</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-amber-200 text-center">
+                <div class="px-6 py-6 md:py-0">
+                    <span class="font-serif text-3xl text-amber-500 block mb-2">01</span>
+                    <h3 class="font-semibold text-amber-900 mb-2">Track the details that matter</h3>
+                    <p class="text-amber-800 text-sm leading-relaxed">Bean origin, roast, grind size, water temp, ratios, timing. The parameters that separate a good cup from a great one.</p>
                 </div>
-                <div class="bg-white bg-opacity-70 rounded-xl p-6 shadow-sm">
-                    <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-100 rounded-lg mb-4">
-                        <svg class="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Your Recipes, Your Rules</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Recipes default to private. Share directly with specific users, make them public, or keep them just for yourself.</p>
+                <div class="px-6 py-6 md:py-0">
+                    <span class="font-serif text-3xl text-amber-500 block mb-2">02</span>
+                    <h3 class="font-semibold text-amber-900 mb-2">Decide what stays private</h3>
+                    <p class="text-amber-800 text-sm leading-relaxed">New recipes default to private. Share one with a specific person, make it public, or keep it to yourself.</p>
                 </div>
-                <div class="bg-white bg-opacity-70 rounded-xl p-6 shadow-sm">
-                    <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-100 rounded-lg mb-4">
-                        <svg class="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.57 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.57,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Discover the Community</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Browse recipes shared by other coffee enthusiasts. Clone any recipe to your collection and make it your own.</p>
+                <div class="px-6 py-6 md:py-0">
+                    <span class="font-serif text-3xl text-amber-500 block mb-2">03</span>
+                    <h3 class="font-semibold text-amber-900 mb-2">Learn from other brewers</h3>
+                    <p class="text-amber-800 text-sm leading-relaxed">Browse what other people have published and clone anything worth trying into your own collection.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
 </body>
 </html>
