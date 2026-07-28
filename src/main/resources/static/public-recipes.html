@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/css/theme.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%232A1B12' d='M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z'/></svg>">
 </head>
-<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
-<nav class="bg-white shadow-sm">
+<body class="bg-amber-50 min-h-screen">
+<nav class="bg-white border-b border-amber-200">
     <div class="container mx-auto px-6 py-2">
         <div class="flex flex-wrap gap-y-1 justify-between items-center">
             <h1 class="text-base sm:text-lg font-bold text-amber-600 whitespace-nowrap">Coffee Recipe Organizer</h1>
@@ -42,14 +42,9 @@
         </div>
     </div>
 
-    <div class="text-center py-8 hidden" id="empty-state">
-        <div class="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-full mb-3">
-            <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2,21V19H20V21H2M20,8V5L18,5V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z"/>
-            </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">No public recipes found</h3>
-        <p class="text-gray-600 text-sm">Check back later for new recipes from the community!</p>
+    <div class="text-center py-12 hidden" id="empty-state">
+        <h3 class="text-lg font-semibold text-amber-900 mb-2">No public recipes found</h3>
+        <p class="text-amber-700 text-sm">Check back later for new recipes from the community.</p>
     </div>
 </div>
 
@@ -111,7 +106,7 @@
 
     function createRecipeCard(recipe) {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 cursor-pointer';
+        card.className = 'bg-white rounded border border-amber-200 overflow-hidden hover:border-amber-400 transition duration-200 cursor-pointer';
 
         const id = Number(recipe.id);
         const beanInfo = recipe.bean
@@ -212,7 +207,7 @@
                     ${stepsHtml}
                     ${notesHtml}
                     <div class="lg:col-span-2 flex justify-end pt-4">
-                        <button onclick="cloneRecipe(${id})" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded text-sm">Clone This Recipe</button>
+                        <button onclick="cloneRecipe(${id})" class="bg-amber-800 hover:bg-amber-900 text-white font-semibold py-2 px-4 rounded text-sm">Clone This Recipe</button>
                     </div>
                 </div>
             </div>
